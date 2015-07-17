@@ -6,7 +6,7 @@ define('omni-timeslot-model', [
 
 	"use strict";
 
-	TimeSlot.DEFAULT_WINDOW = 1000 * 60 * 60 * 2; // two hours
+	TimeSlot.DEFAULT_WINDOW = 60 * 60 * 15; // fifteen minutes
 
 	function TimeSlot(data) {
 		if (!data.end)
@@ -16,8 +16,7 @@ define('omni-timeslot-model', [
 
 	TimeSlot.prototype = {
 		start: function() { return new Date(this.data.start); },
-		end: function() { return new Date(this.data.end); },
-		available: function() { return !!this.data.available; }
+		end: function() { return new Date(this.data.end); }
 	};
 
 	omni.models.TimeSlot = TimeSlot;

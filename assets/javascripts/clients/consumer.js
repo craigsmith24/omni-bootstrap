@@ -2,7 +2,7 @@ define('omni-consumer-client', [
 	'omni',
 	'omni-salepoint-model',
 	'omni-account-model',
-	'omni-timeslot-model',
+	'omni-business-hours-model',
 	'omni-coupon-model',
 	'omni-sale-order-model',
 	'jquery'
@@ -10,7 +10,7 @@ define('omni-consumer-client', [
 	omni,
 	SalePoint,
 	Account,
-	TimeSlot,
+	BusinessHours,
 	Coupon,
 	SaleOrder,
     $
@@ -173,11 +173,9 @@ define('omni-consumer-client', [
 			});
 		},
 
-		pickupTimesScheduled: function () {
-			return this.exec('scheduler/available-dates', null, { method: 'GET' }).then(function (resp) {
-				return $.map(resp.bodyContent(), function(str){
-					return new Date(str).getTime();
-				});
+		schedulerBusinessHours: function () {
+			return this.exec('scheduler/business-hours', null, { method: 'GET' }).then(function (resp) {
+				return resp.bodyContent(BusinessHours);
 			});
 		},
 
@@ -189,43 +187,6 @@ define('omni-consumer-client', [
 
 		updatePaymentCredentials: function(details){
 			return this.exec('payments/credentials', details);
-		},
-
-		pickupTimeSlots: function (opts) {
-			var weeks = [], now = new Date(), twelve = 12 * 60 * 60 * 1000;
-			opts = $.extend({
-				startDate: new Date(now.getTime() + twelve),
-				hourDelta: 1,
-				startHour: 8,
-				endHour: 18,
-				weeks: 1,
-				defaultPadding: twelve,
-				dayPadding: [24 * 60 * 60 * 1000]
-			}, opts || {});
-			for (var iweek = 0; iweek <= opts.weeks; iweek++) {
-				var week = [];
-				for (var iday = 0; iday < 7; iday++) {
-					var day = [];
-					for (var ihour = opts.startHour; ihour <= opts.endHour; ihour += opts.hourDelta) {
-						var pad, ts, avail, end, start = new Date(opts.startDate.getTime());
-						start.setHours(ihour);
-						start.setMinutes(0);
-						ts = start.setDate(start.getDate() + iweek * 7 + iday);
-						end = new Date(ts);
-						end.setHours(end.getHours() + opts.hourDelta);
-						pad = opts.dayPadding[start.getDay()] || opts.defaultPadding;
-						avail = start.getTime() > (now.getTime()+pad);
-						day.push(new TimeSlot({
-							start: start.getTime(),
-							end: end.getTime(),
-							available: avail
-						}));
-					}
-					week.push(day);
-				}
-				weeks.push(week);
-			}
-			return $.Deferred().resolve(weeks).promise();
 		},
 
 		salePointsByAddress: function (address, distance) {
