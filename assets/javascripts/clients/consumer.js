@@ -21,7 +21,11 @@ define('omni-consumer-client', [
 	var SUPPORTED_ZIP_CODES = [94158, 94124, 94115, 94117, 94114, 94110, 94103, 94102, 94124, 94109, 94108, 94111, 94133, 94104, 94105, 94107, 94124];
 
 	function Response(data) {
-		this.data = data;
+		this.data = $.isPlainObject(data) ? data : { 
+			statusCode: 0, 
+			statusMessage: data, 
+			body: {}
+		};
 	}
 
 	Response.prototype = {
@@ -98,7 +102,7 @@ define('omni-consumer-client', [
 				return response.isError() ? $.Deferred().reject(response) : response;
 			}, function (xhr, error, message) {
 				return new Response({
-					statusCode: xhr.status,
+					statusCode: xhr.status || 0,
 					statusMessage: message || error,
 					body: {
 						messages: [{type: "error", text: "Unable to communicate with the API"}],
