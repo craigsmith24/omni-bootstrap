@@ -57,8 +57,22 @@ define('omni-business-hours-model', [
 
 		},
 
-		minuteInterval: function() {
-			return Math.floor(this.data.weekday.interval / 60); // TODO: handle weekends?
+		duration: function(date) {
+			switch (date.getDay()) {
+				case 6: case 0:
+					return this.data.weekend.interval * 1000;
+				default:
+					return this.data.weekend.interval * 1000;
+			}
+		},
+
+		minuteInterval: function(date) {
+			switch (date.getDay()) {
+				case 6: case 0:
+					return Math.floor(this.data.weekend.interval / 60);
+				default:
+					return Math.floor(this.data.weekday.interval / 60);
+			}
 		},
 
 		operatingRange: function(date) {
@@ -72,18 +86,18 @@ define('omni-business-hours-model', [
 					from = this.data.weekend.start;
 					to = this.data.weekend.end;
 			}
-			var minDay = new Date(min.getTime()).setHours(0,0,0,0);
-			var minSeconds = Math.floor((min.getTime() - minDay)/1000);
-			if (from < minSeconds) from = minSeconds;
-			from -= this.data.weekday.interval;
-			to += this.data.weekday.interval;
-			return [{ 
-				from: [0,0], 
-				to: [Math.floor(from/3600),(from%3600)/60]
-			},{
-				from: [Math.floor(to/3600),(to%3600)/60], 
-				to: [23,45]
-			}];
+			var selectedDate = new Date(date.getTime()).setHours(0,0,0,0);
+			var minDate = new Date(min.getTime()).setHours(0,0,0,0);
+			var interval = this.data.weekday.interval;
+			if (minDate === selectedDate) {
+				var minSeconds = Math.floor((min.getTime() - minDate)/1000);
+				if (from < minSeconds) from = minSeconds;
+			}
+			return {
+				min: [Math.floor(from/3600),(from%3600)/60],
+				max: [Math.floor(to/3600),(to%3600)/60],
+				interval: this.minuteInterval(date)
+			};
 		}
 
 	};
