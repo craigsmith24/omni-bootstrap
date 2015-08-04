@@ -24,9 +24,9 @@ define('omni-business-hours-model', [
 			}
 
 			// normalize to interval
-			var mins = Math.floor(date.getMinutes()*60/this.data.weekday.interval) * 
-							Math.floor(this.data.weekday.interval/60);
-			date.setHours(date.getHours(), mins, 0);	
+			var minterval = Math.floor(this.data.weekday.interval/60);
+			var mins = Math.floor(date.getMinutes()*60/this.data.weekday.interval) * minterval;
+			date.setHours(date.getHours(), mins+minterval, 0, 0);
 
 			// get the close time for the min date
 			var cutoff;
@@ -39,7 +39,7 @@ define('omni-business-hours-model', [
 
 			// now determine if the min date is after hours; 
 			var end  = new Date(date.getTime());
-			end.setHours(Math.floor(cutoff/3600), Math.floor(cutoff%3600/60), 0);
+			end.setHours(Math.floor(cutoff/3600), Math.floor(cutoff%3600/60), 0, 0);
 			if (end > date) return date;
 
 			// if so, push the date to tomorrow open date
@@ -52,7 +52,7 @@ define('omni-business-hours-model', [
 			}
 
 			// and open time
-			date.setHours(Math.floor(cutoff/3600), Math.floor(cutoff%3600/60), 0);
+			date.setHours(Math.floor(cutoff/3600), Math.floor(cutoff%3600/60), 0, 0);
 			return date;
 
 		},
