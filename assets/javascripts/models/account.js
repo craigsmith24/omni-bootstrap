@@ -55,9 +55,6 @@ define('omni-account-model', [
 				return this.data.address ? new Address(this.data.address) : null;
 			else this.data.address = value;
 			return this;
-		},
-		fillProfile: function(values) {
-			return $.extend({}, this.data, values);
 		}
 	};
 
