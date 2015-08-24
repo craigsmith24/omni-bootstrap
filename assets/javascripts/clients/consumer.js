@@ -18,7 +18,7 @@ define('omni-consumer-client', [
 
 	"use strict";
 
-	var SUPPORTED_ZIP_CODES = [94158, 94124, 94115, 94117, 94114, 94110, 94103, 94102, 94124, 94109, 94108, 94111, 94133, 94104, 94105, 94107, 94124, 94122, 94129];
+	var SUPPORTED_ZIP_CODES = [94132, 94158, 94124, 94115, 94117, 94114, 94110, 94103, 94102, 94124, 94109, 94108, 94111, 94133, 94104, 94105, 94107, 94124, 94122, 94129];
 
 	function Response(data) {
 		this.data = $.isPlainObject(data) ? data : { 
