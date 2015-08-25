@@ -2,7 +2,7 @@ define('omni-consumer-client', [
 	'omni',
 	'omni-salepoint-model',
 	'omni-account-model',
-	'omni-business-hours-model',
+	'omni-region-schedule-model',
 	'omni-coupon-model',
 	'omni-sale-order-model',
 	'jquery'
@@ -10,15 +10,13 @@ define('omni-consumer-client', [
 	omni,
 	SalePoint,
 	Account,
-	BusinessHours,
+	RegionSchedule,
 	Coupon,
 	SaleOrder,
     $
 ) {
 
 	"use strict";
-
-	var SUPPORTED_ZIP_CODES = [94118, 94132, 94158, 94124, 94115, 94117, 94114, 94110, 94103, 94102, 94123, 94124, 94109, 94108, 94111, 94133, 94104, 94105, 94107, 94124, 94122, 94129];
 
 	function Response(data) {
 		this.data = $.isPlainObject(data) ? data : { 
@@ -56,6 +54,14 @@ define('omni-consumer-client', [
 
 	};
 
+	function makeModel(klass) {
+		return function(resp) {
+			return resp.bodyContent(klass);
+		};
+	}
+
+	var makeAccount = makeModel(Account);
+
 	function ConsumerClient(host, key) {
 		this.host = host;
 		this.key = key;
@@ -66,7 +72,8 @@ define('omni-consumer-client', [
 		OK: 200,
 		NOT_FOUND: 404,
 		AUTH_REQUIRED: 401,
-		ALREADY_LOGGED_IN: 1016
+		ALREADY_LOGGED_IN: 1016,
+		UNSUPPORTED_ZIPCODE: 1600,
 	};
 
 	ConsumerClient.prototype = {
@@ -117,9 +124,7 @@ define('omni-consumer-client', [
 		},
 
 		depositSaleOrders: function() {
-			return this.exec('saleorders/check-ins', null, { method: 'GET' }).then(function (resp) {
-				return resp.bodyContent(SaleOrder);
-			});
+			return this.exec('saleorders/check-ins', null, { method: 'GET' }).then(makeModel(SaleOrder));
 		},
 
 		lookupCoupon: function(code) {
@@ -138,22 +143,16 @@ define('omni-consumer-client', [
 		},
 
 		updateProfile: function(details) {
-			return this.exec('profile', details).then(function (resp) {
-				return resp.bodyContent(Account);
-			});
+			return this.exec('profile', details).then(makeAccount);
 		},
 
 		loginWithFacebookToken: function (token, extra) {
 			var params = $.extend(extra || {}, { token: token });
-			return this.exec('auth/login-facebook', params).then(function (resp) {
-				return resp.bodyContent(Account);
-			});
+			return this.exec('auth/login-facebook', params).then(makeAccount);
 		},
 
 		login: function (details) {
-			return this.exec('auth/login', details).then(function (resp) {
-				return resp.bodyContent(Account);
-			});
+			return this.exec('auth/login', details).then(makeAccount);
 		},
 
 		logout: function () {
@@ -161,26 +160,16 @@ define('omni-consumer-client', [
 		},
 
 		signup: function (details) {
-			return this.exec('auth/signup', details).then(function (resp) {
-				return resp.bodyContent(Account);
-			});
+			return this.exec('auth/signup', details).then(makeAccount);
 		},
 
 		createLead: function (details) {
 			var params = $.extend({
 				building_name: this.constants.CUSTOM_BUILDING_NAME
 			}, details || {}, {
-				key: this.key
+				api_key: this.key
 			});
-			return this.exec('auth/lead', params).then(function (resp) {
-				return resp.bodyContent(Account);
-			});
-		},
-
-		schedulerBusinessHours: function () {
-			return this.exec('scheduler/business-hours', null, { method: 'GET' }).then(function (resp) {
-				return resp.bodyContent(BusinessHours);
-			});
+			return this.exec('auth/lead', params).then(makeAccount);
 		},
 
 		requestPickup: function (date) {
@@ -197,15 +186,14 @@ define('omni-consumer-client', [
 			return this.exec('salepoints/by-address', {
 				address: address,
 				distance: distance
-			}).then(function (resp) {
-				return resp.bodyContent(SalePoint);
-			});
+			}).then(makeModel(SalePoint));
 		},
 
-		zipCodeSupported: function (zipCode) {
-			var zip = parseInt(zipCode, 10);
-			var supported = SUPPORTED_ZIP_CODES.indexOf(zip) >= 0;
-			return $.Deferred().resolve(supported);
+		regionSchedule: function (zip) {
+			return this.exec('region/schedule', 
+				{ zip: zip, api_key: this.key }, 
+				{ method: 'GET' }
+			).then(makeModel(RegionSchedule));
 		}
 
 	};

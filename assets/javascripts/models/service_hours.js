@@ -1,4 +1,4 @@
-define('omni-business-hours-model', [
+define('omni-service-hours-model', [
 	'omni'
 ], function(
 	omni
@@ -6,11 +6,11 @@ define('omni-business-hours-model', [
 
 	"use strict";
 
-	function BusinessHours(data) {
+	function ServiceHours(data) {
 		this.data = data;
 	}
 
-	BusinessHours.prototype = {
+	ServiceHours.prototype = {
 		
 		minDate: function() {
 
@@ -102,7 +102,7 @@ define('omni-business-hours-model', [
 
 	};
 
-	omni.models.BusinessHours = BusinessHours;
-	return BusinessHours;
+	omni.models.ServiceHours = ServiceHours;
+	return ServiceHours;
 
 });
