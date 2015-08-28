@@ -33,6 +33,12 @@ define('omni-account-model', [
 		hasPricingPlan: function() {
 			return !!this.pricingPlan();
 		},
+		hasPaymentCredentials: function() {
+			return !!this.data.payment_credentials_filled;
+		},
+		isBillable: function() {
+			return this.hasPaymentCredentials() && this.hasPricingPlan();
+		},
 		canCheckin: function() {
 			return this.hasAddress() && this.hasPhone();
 		},
