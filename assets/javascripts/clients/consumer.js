@@ -18,6 +18,23 @@ define('omni-consumer-client', [
 
 	"use strict";
 
+	function formatLocalDate(now) {
+	    var tzo = -now.getTimezoneOffset(),
+	        dif = tzo >= 0 ? '+' : '-',
+	        pad = function(num) {
+	            var norm = Math.abs(Math.floor(num));
+	            return (norm < 10 ? '0' : '') + norm;
+	        };
+	    return now.getFullYear() 
+	        + '-' + pad(now.getMonth()+1)
+	        + '-' + pad(now.getDate())
+	        + 'T' + pad(now.getHours())
+	        + ':' + pad(now.getMinutes()) 
+	        + ':' + pad(now.getSeconds()) 
+	        + dif + pad(tzo / 60) 
+	        + ':' + pad(tzo % 60);
+	}
+
 	function Response(data) {
 		this.data = $.isPlainObject(data) ? data : { 
 			statusCode: 0, 
@@ -174,12 +191,14 @@ define('omni-consumer-client', [
 
 		requestPickup: function (date) {
 			return this.exec('scheduler/pickup-date', {
-				scheduled_date: date.toISOString()
+				scheduled_date: formatLocalDate(date)
 			});
 		},
 
 		updatePaymentCredentials: function(details){
-			return this.exec('payments/credentials', details);
+			return this.exec('payments/credentials', details).then(function(r){
+				return r.bodyContent();
+			});
 		},
 
 		salePointsByAddress: function (address, distance) {
