@@ -97,9 +97,9 @@ $spinner-size: 40px;
 	&::after {
 		top: 0;
 		z-index: 50;
-		left: -100%;
+		left: -200%;
 		content: '';
-		width: 110%;
+		width: 200%;
 		height: 100%;
 		margin: auto -5%;
 		position: absolute;
@@ -109,7 +109,7 @@ $spinner-size: 40px;
 		@include transition(opacity 0.5s, left 0s ease 0.5s);
 	}
 	&.loading::after {
-		left: 0%;
+		left: -50%;
 		@include opacity(1);
 		@include transition(opacity 0.5s, left 0s);
 	}
