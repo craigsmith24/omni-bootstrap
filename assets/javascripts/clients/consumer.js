@@ -18,6 +18,8 @@ define('omni-consumer-client', [
 
 	"use strict";
 
+	var API_VERSION = 'v2';
+
 	function formatLocalDate(now) {
 	    var tzo = -now.getTimezoneOffset(),
 	        dif = tzo >= 0 ? '+' : '-',
@@ -108,7 +110,7 @@ define('omni-consumer-client', [
 		},
 
 		absUrl: function (path) {
-			return this.host + '/api/v1/' + path;
+			return this.host + ['/api', API_VERSION, path].join('/');
 		},
 
 		exec: function (path, data, options) {
