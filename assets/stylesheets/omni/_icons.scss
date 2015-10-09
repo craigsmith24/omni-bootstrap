@@ -1,0 +1,112 @@
+@import "compass";
+@import "variables";
+
+.social-icon {
+
+	&:before {
+		font-family: 'socicon';
+		speak: none;
+		font-style: normal;
+		font-weight: normal;
+		font-variant: normal;
+		text-transform: none;
+		line-height: 1;		
+		-webkit-font-smoothing: antialiased;
+		-moz-osx-font-smoothing: grayscale;
+	}
+
+	&.social-icon-twitter:before { content: "a"; }
+	&.social-icon-facebook:before { content: "b"; }
+	&.social-icon-google:before { content: "c"; }
+	&.social-icon-pinterest:before { content: "d"; }
+	&.social-icon-foursquare:before { content: "e"; }
+	&.social-icon-yahoo:before { content: "f"; }
+	&.social-icon-skype:before { content: "g"; }
+	&.social-icon-yelp:before { content: "h"; }
+	&.social-icon-feedburner:before { content: "i"; }
+	&.social-icon-linkedin:before { content: "j"; }
+	&.social-icon-viadeo:before { content: "k"; }
+	&.social-icon-xing:before { content: "l"; }
+	&.social-icon-myspace:before { content: "m"; }
+	&.social-icon-soundcloud:before { content: "n"; }
+	&.social-icon-spotify:before { content: "o"; }
+	&.social-icon-grooveshark:before { content: "p"; }
+	&.social-icon-lastfm:before { content: "q"; }
+	&.social-icon-youtube:before { content: "r"; }
+	&.social-icon-vimeo:before { content: "s"; }
+	&.social-icon-dailymotion:before { content: "t"; }
+	&.social-icon-vine:before { content: "u"; }
+	&.social-icon-flickr:before { content: "v"; }
+	&.social-icon-500px:before { content: "w"; }
+	&.social-icon-instagram:before { content: "x"; }
+	&.social-icon-wordpress:before { content: "y"; }
+	&.social-icon-tumblr:before { content: "z"; }
+	&.social-icon-blogger:before { content: "A"; }
+	&.social-icon-technorati:before { content: "B"; }
+	&.social-icon-reddit:before { content: "C"; }
+	&.social-icon-dribbble:before { content: "D"; }
+	&.social-icon-stumbleupon:before { content: "E"; }
+	&.social-icon-digg:before { content: "F"; }
+	&.social-icon-envato:before { content: "G"; }
+	&.social-icon-behance:before { content: "H"; }
+	&.social-icon-delicious:before { content: "I"; }
+	&.social-icon-deviantart:before { content: "J"; }
+	&.social-icon-forrst:before { content: "K"; }
+	&.social-icon-playstore:before { content: "L"; }
+	&.social-icon-zerply:before { content: "M"; }
+	&.social-icon-wikipedia:before { content: "N"; }
+	&.social-icon-apple:before { content: "O"; }
+	&.social-icon-flattr:before { content: "P"; }
+	&.social-icon-github:before { content: "Q"; }
+	&.social-icon-chimein:before { content: "R"; }
+	&.social-icon-friendfeed:before { content: "S"; }
+	&.social-icon-newsvine:before { content: "T"; }
+	&.social-icon-identica:before { content: "U"; }
+	&.social-icon-bebo:before { content: "V"; }
+	&.social-icon-zynga:before { content: "W"; }
+	&.social-icon-steam:before { content: "X"; }
+	&.social-icon-xbox:before { content: "Y"; }
+	&.social-icon-windows:before { content: "Z"; }
+	&.social-icon-outlook:before { content: "1"; }
+	&.social-icon-coderwall:before { content: "2"; }
+	&.social-icon-tripadvisor:before { content: "3"; }
+	&.social-icon-appnet:before { content: "4"; }
+	&.social-icon-goodreads:before { content: "5"; }
+	&.social-icon-tripit:before { content: "6"; }
+	&.social-icon-lanyrd:before { content: "7"; }
+	&.social-icon-slideshare:before { content: "8"; }
+	&.social-icon-buffer:before { content: "9"; }
+	&.social-icon-rss:before { content: ","; }
+	&.social-icon-vkontakte:before { content: ";"; }
+	&.social-icon-disqus:before { content: ":"; }
+	&.social-icon-houzz:before { content: "+"; }
+	&.social-icon-mail:before { content: "@"; }
+	&.social-icon-patreon:before { content: "="; }
+	&.social-icon-paypal:before { content: "-"; }
+	&.social-icon-playstation:before { content: "^"; }
+	&.social-icon-smugmug:before { content: "¨"; }
+	&.social-icon-swarm:before { content: "$"; }
+	&.social-icon-triplej:before { content: "*"; }
+	&.social-icon-yammer:before { content: "&"; }
+	&.social-icon-stackoverflow:before { content: "("; }
+	&.social-icon-drupal:before { content: "#"; }
+	&.social-icon-odnoklassniki:before { content : ".";}
+	&.social-icon-android:before { content: "_"; }
+	&.social-icon-meetup:before { content: "]"; }
+	&.social-icon-persona:before { content: ")"; }
+	&.social-icon-amazon:before { content: "£"; }
+	&.social-icon-ello:before { content: "'"; }
+	&.social-icon-mixcloud:before { content: '"'; }
+	&.social-icon-8tracks:before { content: "}"; }
+	&.social-icon-twitch:before { content: "{"; }
+	&.social-icon-airbnb:before { content: "/"; }
+	&.social-icon-pocket:before { content: "?"; }
+	&.social-icon-whatsapp:before { content: "<"; }
+	&.social-icon-storehouse:before { content: ">"; }
+	&.social-icon-icq:before { content: "§"; }
+	&.social-icon-modelmayhem:before { content: "!"; }
+	&.social-icon-istock:before { content: "%"; }
+	&.social-icon-angellist:before { content: "€"; }
+	&.social-icon-periscope:before { content: "0"; }
+
+}
