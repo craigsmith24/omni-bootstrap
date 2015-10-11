@@ -1,0 +1,29 @@
+{
+  "name": "omni-bootstrap",
+  "version": "0.0.1",
+  "homepage": "https://github.com/omniprojects/omni-bootstrap",
+  "authors": [
+    "Jonathan Azoff <jon@secretprojects.us>"
+  ],
+  "description": "Bootstrap theme and shared libraries for Omni web apps",
+  "ignore": [
+    "**/.*",
+    "lib",
+    "tasks",
+    "test"
+  ],
+  "dependencies": {
+    "jquery": ">= 1.9.0",
+    "requirejs": "~2.1.17",
+    "bootstrap-sass": "~3.3.3"
+  },
+  "_release": "0.0.1",
+  "_resolution": {
+    "type": "version",
+    "tag": "0.0.1",
+    "commit": "cbdacc09f05ddba472cfd9d06fc1e6bac75b2621"
+  },
+  "_source": "git://github.com/omniprojects/omni-bootstrap.git",
+  "_target": "*",
+  "_originalSource": "omniprojects/omni-bootstrap"
+}
