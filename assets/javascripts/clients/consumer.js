@@ -166,11 +166,12 @@ define('omni-consumer-client', [
 		},
 
 		loginWithFacebookToken: function (token, extra) {
-			var params = $.extend(extra || {}, { token: token });
+			var params = $.extend({ lead_source: 'Web' }, extra || {}, { token: token });
 			return this.exec('auth/login-facebook', params).then(makeAccount);
 		},
 
 		login: function (details) {
+			details = $.extend({ lead_source: 'Web' }, {} || details);
 			return this.exec('auth/login', details).then(makeAccount);
 		},
 
@@ -179,11 +180,13 @@ define('omni-consumer-client', [
 		},
 
 		signup: function (details) {
+			details = $.extend({ lead_source: 'Web' }, {} || details);
 			return this.exec('auth/signup', details).then(makeAccount);
 		},
 
 		createLead: function (details) {
 			var params = $.extend({
+				lead_source: 'Web',
 				building_name: this.constants.CUSTOM_BUILDING_NAME
 			}, details || {}, {
 				api_key: this.key
