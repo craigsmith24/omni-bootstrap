@@ -171,7 +171,7 @@ define('omni-consumer-client', [
 		},
 
 		login: function (details) {
-			details = $.extend({ lead_source: 'Web' }, {} || details);
+			details = $.extend({ lead_source: 'Web' }, details || {});
 			return this.exec('auth/login', details).then(makeAccount);
 		},
 
@@ -180,7 +180,7 @@ define('omni-consumer-client', [
 		},
 
 		signup: function (details) {
-			details = $.extend({ lead_source: 'Web' }, {} || details);
+			details = $.extend({ lead_source: 'Web' }, details || {});
 			return this.exec('auth/signup', details).then(makeAccount);
 		},
 
