@@ -6,16 +6,16 @@ define('omni-coupon-model', [
 
 	"use strict";
 
-	Coupon.isValidCode = function(code) {
-		return /^[\w\d\-]{4,}$/i.test(code);
-	};
-
 	function Coupon(data) {
 		this.data = data;
 	}
 
 	Coupon.prototype = {
-		code: function() { return this.data.code || ''; }
+		code: function() { return $.trim(this.data.code).toUpperCase(); },
+		title: function() { return this.data.title; },
+		subtitle: function() { return this.data.subtitle; },
+		caption: function() { return this.data.caption; },
+		image: function() { return this.data.image; }
 	};
 
 	omni.models.Coupon = Coupon;

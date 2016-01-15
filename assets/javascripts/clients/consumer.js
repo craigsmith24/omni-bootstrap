@@ -147,18 +147,8 @@ define('omni-consumer-client', [
 		},
 
 		lookupCoupon: function(code) {
-			var job = $.Deferred();
-			if (Coupon.isValidCode(code))
-				job.resolve(new Coupon({ code: $.trim(code).toLowerCase() }));
-			else job.reject(new Response({
-				statusCode: ConsumerClient.statusCodes.NOT_FOUND,
-				statusMessage: 'Not Found',
-				body: {
-					messages: [{type: "error", text: "Invalid coupon code"}],
-					content: false
-				}
-			}));
-			return job.promise();
+			code = $.trim(code).toUpperCase();
+			return this.exec('coupons/lookup', { code: code }, { method: 'GET' }).then(makeModel(Coupon));			
 		},
 
 		updateProfile: function(details) {
