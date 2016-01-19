@@ -2,7 +2,6 @@ define('omni-consumer-client', [
 	'omni',
 	'omni-salepoint-model',
 	'omni-account-model',
-	'omni-region-schedule-model',
 	'omni-coupon-model',
 	'omni-sale-order-model',
 	'jquery'
@@ -10,7 +9,6 @@ define('omni-consumer-client', [
 	omni,
 	SalePoint,
 	Account,
-	RegionSchedule,
 	Coupon,
 	SaleOrder,
     $
@@ -203,11 +201,18 @@ define('omni-consumer-client', [
 			}).then(makeModel(SalePoint));
 		},
 
-		regionSchedule: function (zip) {
-			return this.exec('region/schedule', 
+		checkZip: function (zip) {
+			return this.exec('region/check-zip', 
 				{ zip: zip, api_key: this.key }, 
-				{ method: 'GET' }
-			).then(makeModel(RegionSchedule));
+				{ method: 'POST' }
+			).then(function(resp){
+				return resp.bodyContent();
+			}, function(resp) {
+				if (resp.statusCode() === ConsumerClient.statusCodes.UNSUPPORTED_ZIPCODE)
+					return $.Deferred().resolve(false);
+				else 
+					return resp;
+			});
 		}
 
 	};
