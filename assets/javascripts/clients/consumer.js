@@ -4,6 +4,7 @@ define('omni-consumer-client', [
 	'omni-account-model',
 	'omni-coupon-model',
 	'omni-sale-order-model',
+	'omni-timeslot-group-model',
 	'jquery'
 ], function(
 	omni,
@@ -11,6 +12,7 @@ define('omni-consumer-client', [
 	Account,
 	Coupon,
 	SaleOrder,
+	TimeSlotGroup,
     $
 ) {
 
@@ -78,6 +80,7 @@ define('omni-consumer-client', [
 	}
 
 	var makeAccount = makeModel(Account);
+	var makeTimeSlotGroups = makeModel(TimeSlotGroup);
 
 	function ConsumerClient(host, key) {
 		this.host = host;
@@ -129,7 +132,7 @@ define('omni-consumer-client', [
 					statusCode: xhr.status || 0,
 					statusMessage: message || error,
 					body: {
-						messages: [{type: "error", text: "Unable to communicate with the API"}],
+						messages: [{type: "error", text: "The service is not responding."}],
 						content: false
 					}
 				});
@@ -203,8 +206,7 @@ define('omni-consumer-client', [
 
 		checkZip: function (zip) {
 			return this.exec('region/check-zip', 
-				{ zip: zip, api_key: this.key }, 
-				{ method: 'POST' }
+				{ zip: zip, api_key: this.key }
 			).then(function(resp){
 				return resp.bodyContent();
 			}, function(resp) {
@@ -213,6 +215,10 @@ define('omni-consumer-client', [
 				else 
 					return resp;
 			});
+		},
+
+		checkInTimeSlotGroups: function (zip) {
+			return this.exec('scheduler/check-in', { zip: zip }, { method: 'GET' }).then(makeTimeSlotGroups);
 		}
 
 	};

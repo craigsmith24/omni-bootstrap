@@ -16,6 +16,7 @@ define('omni-timeslot-model', [
 	}
 
 	TimeSlot.prototype = {
+		price: function() { return this.data.price; }, 
 		duration: function() { return this.data.duration; },
 		start: function() { return new Date(this.data.start); },
 		end: function() { return new Date(this.data.end); }
