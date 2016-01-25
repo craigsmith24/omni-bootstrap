@@ -1,3 +1,5 @@
+//todo: update this file for ES6
+
 define('omni-consumer-client', [
 	'omni',
 	'omni-salepoint-model',
