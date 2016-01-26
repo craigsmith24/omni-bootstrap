@@ -1,26 +1,24 @@
-define('omni-sale-order-model', [
-	'omni',
-	'omni-timeslot-model'
-], function(
-	omni,
-    TimeSlot
-) {
+"use strict";
 
-	"use strict";
+import omni from '../omni';
+import TimeSlot from './timeslot';
 
-	function SaleOrder(data) {
-		this.data = data;
-	}
+export default class SaleOrder {
+  constructor(data){
+    this.data = data;
+  }
 
-	SaleOrder.prototype = {
-		orderNumber: function(){ return this.data.order_number; },
-		scheduledDate: function(){ return new Date(this.data.scheduled_date + '  GMT-0000'); },
-		timeSlot: function(){
-			return new TimeSlot({ start: this.scheduledDate().getTime() });
-		}
-	};
+  orderNumber() {
+    return this.data.order_number;
+  }
 
-	omni.models.SaleOrder = SaleOrder;
-	return SaleOrder;
+  scheduledDate() {
+    return new Date(this.data.scheduled_date + '  GMT-0000');
+  }
 
-});
+  timeSlot() {
+    return new TimeSlot({ start: this.scheduledDate().getTime() });
+  }
+}
+
+omni.models.SaleOrder = SaleOrder;

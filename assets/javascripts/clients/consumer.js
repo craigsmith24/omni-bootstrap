@@ -1,231 +1,219 @@
-//todo: update this file for ES6
+"use strict";
 
-define('omni-consumer-client', [
-	'omni',
-	'omni-salepoint-model',
-	'omni-account-model',
-	'omni-coupon-model',
-	'omni-sale-order-model',
-	'omni-timeslot-group-model',
-	'jquery'
-], function(
-	omni,
-	SalePoint,
-	Account,
-	Coupon,
-	SaleOrder,
-	TimeSlotGroup,
-    $
-) {
+import omni from '../omni';
+import SalePoint from '../models/salepoint';
+import Account from '../models/account';
+import Coupon from '../models/coupon';
+import SaleOrder from '../models/sale_order';
+import TimeSlotGroup from '../models/timeslot-group';
+import $ from 'jquery';
+    
 
-	"use strict";
+const API_VERSION = 'v2';
 
-	var API_VERSION = 'v2';
+function formatLocalDate(now) {
+  const tzo = -now.getTimezoneOffset();
+  const dif = tzo >= 0 ? '+' : '-';
+  const pad = function(num) {
+    const norm = Math.abs(Math.floor(num));
+    return (norm < 10 ? '0' : '') + norm;
+  };
 
-	function formatLocalDate(now) {
-	    var tzo = -now.getTimezoneOffset(),
-	        dif = tzo >= 0 ? '+' : '-',
-	        pad = function(num) {
-	            var norm = Math.abs(Math.floor(num));
-	            return (norm < 10 ? '0' : '') + norm;
-	        };
-	    return now.getFullYear() 
-	        + '-' + pad(now.getMonth()+1)
-	        + '-' + pad(now.getDate())
-	        + 'T' + pad(now.getHours())
-	        + ':' + pad(now.getMinutes()) 
-	        + ':' + pad(now.getSeconds()) 
-	        + dif + pad(tzo / 60) 
-	        + ':' + pad(tzo % 60);
-	}
+  return now.getFullYear() 
+    + '-' + pad(now.getMonth()+1)
+    + '-' + pad(now.getDate())
+    + 'T' + pad(now.getHours())
+    + ':' + pad(now.getMinutes()) 
+    + ':' + pad(now.getSeconds()) 
+    + dif + pad(tzo / 60) 
+    + ':' + pad(tzo % 60);
+}
 
-	function Response(data) {
-		this.data = $.isPlainObject(data) ? data : { 
-			statusCode: 0, 
-			statusMessage: data, 
-			body: {}
-		};
-	}
+class Response {
+  constructor(data){
+    this.data = $.isPlainObject(data) ? data : { 
+      statusCode: 0, 
+      statusMessage: data, 
+      body: {}
+    }
+  }
 
-	Response.prototype = {
+  isError() {
+    return this.statusCode() !== ConsumerClient.statusCodes.OK;
+  }
 
-		isError: function () {
-			return this.statusCode() !== ConsumerClient.statusCodes.OK;
-		},
+  statusCode() {
+    return this.data.statusCode;
+  }
 
-		statusCode: function () {
-			return this.data.statusCode;
-		},
+  errorMessage() {
+    const status = this.data.statusMessage;
+    const messages = this.data.body.messages;
+    return messages && messages.length ? messages[0].text : status;
+  }
 
-		errorMessage: function () {
-			var status = this.data.statusMessage;
-			var messages = this.data.body.messages;
-			return messages && messages.length ? messages[0].text : status;
-		},
+  bodyContent(Model) {
+    const content = this.data.body.content;
+    if (Model === undefined) {
+      return content;
+    }
+    const map = function (data) {
+      return new Model(data);
+    };
+    if ($.isArray(content)) {
+      return $.map(content, map);
+    }else {
+      return map(content);
+    }
+  }
+}
 
-		bodyContent: function (Model) {
-			var content = this.data.body.content;
-			if (Model === undefined) return content;
-			var map = function (data) {
-				return new Model(data);
-			};
-			if ($.isArray(content)) return $.map(content, map);
-			else return map(content);
-		}
+function makeModel(klass) {
+  return (resp) => {
+    return resp.bodyContent(klass);
+  };
+}
 
-	};
+const makeAccount = makeModel(Account);
+const makeTimeSlotGroups = makeModel(TimeSlotGroup);
 
-	function makeModel(klass) {
-		return function(resp) {
-			return resp.bodyContent(klass);
-		};
-	}
 
-	var makeAccount = makeModel(Account);
-	var makeTimeSlotGroups = makeModel(TimeSlotGroup);
+export default class ConsumerClient {
+  constructor(host,key){
+    this.host = host;
+    this.key = key;
+    this.errorHandlers = {};
+    this.statusCodes = {
+      OK: 200,
+      NOT_FOUND: 404,
+      AUTH_REQUIRED: 401,
+      ALREADY_LOGGED_IN: 1016,
+      UNSUPPORTED_ZIPCODE: 1600
+    };
+    this.constants = {
+      CUSTOM_BUILDING_NAME: 'My Residence'
+    };
+  }
 
-	function ConsumerClient(host, key) {
-		this.host = host;
-		this.key = key;
-		this.errorHandlers = {};
-	}
+  onError(code, handler) {
+    if (!this.errorHandlers.hasOwnProperty(code)){
+      this.errorHandlers[code] = $.Callbacks();
+    }  
+    this.errorHandlers[code].add(handler);
+  }
 
-	ConsumerClient.statusCodes = {
-		OK: 200,
-		NOT_FOUND: 404,
-		AUTH_REQUIRED: 401,
-		ALREADY_LOGGED_IN: 1016,
-		UNSUPPORTED_ZIPCODE: 1600,
-	};
+  absUrl(path) {
+    return this.host + ['/api', API_VERSION, path].join('/');
+  }
 
-	ConsumerClient.prototype = {
+  exec(path, data, options) {
+    const errorHandlers = this.errorHandlers;
+    return $.ajax($.extend({}, {
+      method: 'POST',
+      url: this.absUrl(path),
+      context: this,
+      data: data,
+      xhrFields: {
+        withCredentials: true
+      }
+    }, options || {})).then((data) => {
+      const response = new Response(data);
+      return response.isError() ? $.Deferred().reject(response) : response;
+    }, (xhr, error, message) => {
+      return new Response({
+        statusCode: xhr.status || 0,
+        statusMessage: message || error,
+        body: {
+          messages: [{type: "error", text: "The service is not responding."}],
+          content: false
+        }
+      });
+    }).fail((resp) => {
+      const code = resp.statusCode().toString();
+      if (code in errorHandlers) {
+        errorHandlers[code].fire(resp);
+      }
+    });
+  }
 
-		statusCodes: ConsumerClient.statusCodes,
+  depositSaleOrders() {
+    return this.exec('saleorders/check-ins', null, { method: 'GET' }).then(makeModel(SaleOrder));
+  }
 
-		constants: {
-			CUSTOM_BUILDING_NAME: 'My Residence'
-		},
+  lookupCoupon(code) {
+    code = $.trim(code).toUpperCase();
+    return this.exec('coupons/lookup', { code: code }, { method: 'GET' }).then(makeModel(Coupon));      
+  }
 
-		onError: function(code, handler) {
-			if (!this.errorHandlers.hasOwnProperty(code))
-				this.errorHandlers[code] = $.Callbacks();
-			this.errorHandlers[code].add(handler);
-		},
+  updateProfile(details) {
+    return this.exec('profile', details).then(makeAccount);
+  }
 
-		absUrl: function (path) {
-			return this.host + ['/api', API_VERSION, path].join('/');
-		},
+  loginWithFacebookToken(token, extra) {
+    const params = $.extend({ lead_source: 'Web' }, extra || {}, { token: token });
+    return this.exec('auth/login-facebook', params).then(makeAccount);
+  }
 
-		exec: function (path, data, options) {
-			var errorHandlers = this.errorHandlers;
-			return $.ajax($.extend({}, {
-				method: 'POST',
-				url: this.absUrl(path),
-				context: this,
-				data: data,
-				xhrFields: {
-					withCredentials: true
-				}
-			}, options || {})).then(function (data) {
-				var response = new Response(data);
-				return response.isError() ? $.Deferred().reject(response) : response;
-			}, function (xhr, error, message) {
-				return new Response({
-					statusCode: xhr.status || 0,
-					statusMessage: message || error,
-					body: {
-						messages: [{type: "error", text: "The service is not responding."}],
-						content: false
-					}
-				});
-			}).fail(function(resp){
-				var code = resp.statusCode().toString();
-				if (code in errorHandlers)
-					errorHandlers[code].fire(resp);
-			});
-		},
+  login(details) {
+    details = $.extend({ lead_source: 'Web' }, details || {});
+    return this.exec('auth/login', details).then(makeAccount);
+  }
 
-		depositSaleOrders: function() {
-			return this.exec('saleorders/check-ins', null, { method: 'GET' }).then(makeModel(SaleOrder));
-		},
+  logout() {
+    return this.exec('auth/logout', null, { method: 'GET' });
+  }
 
-		lookupCoupon: function(code) {
-			code = $.trim(code).toUpperCase();
-			return this.exec('coupons/lookup', { code: code }, { method: 'GET' }).then(makeModel(Coupon));			
-		},
+  signup(details) {
+    details = $.extend({ lead_source: 'Web' }, details || {});
+    return this.exec('auth/signup', details).then(makeAccount);
+  }
 
-		updateProfile: function(details) {
-			return this.exec('profile', details).then(makeAccount);
-		},
+  createLead(details) {
+    const params = $.extend({
+      lead_source: 'Web',
+      building_name: this.constants.CUSTOM_BUILDING_NAME
+    }, details || {}, {
+      api_key: this.key
+    });
+    return this.exec('auth/lead', params).then(makeAccount);
+  }
 
-		loginWithFacebookToken: function (token, extra) {
-			var params = $.extend({ lead_source: 'Web' }, extra || {}, { token: token });
-			return this.exec('auth/login-facebook', params).then(makeAccount);
-		},
+  requestPickup(date) {
+    return this.exec('scheduler/pickup-date', {
+      scheduled_date: formatLocalDate(date)
+    });
+  }
 
-		login: function (details) {
-			details = $.extend({ lead_source: 'Web' }, details || {});
-			return this.exec('auth/login', details).then(makeAccount);
-		},
+  updatePaymentCredentials(details){
+    return this.exec('payments/credentials', details).then((r) => {
+      return r.bodyContent();
+    });
+  }
 
-		logout: function () {
-			return this.exec('auth/logout', null, { method: 'GET' });
-		},
+  salePointsByAddress(address, distance) {
+    return this.exec('salepoints/by-address', {
+      address: address,
+      distance: distance
+    }).then(makeModel(SalePoint));
+  }
 
-		signup: function (details) {
-			details = $.extend({ lead_source: 'Web' }, details || {});
-			return this.exec('auth/signup', details).then(makeAccount);
-		},
+  checkZip(zip) {
+    return this.exec('region/check-zip', 
+      { zip: zip, api_key: this.key }
+    ).then((resp) => {
+      return resp.bodyContent();
+    }, (resp) => {
+      if (resp.statusCode() === ConsumerClient.statusCodes.UNSUPPORTED_ZIPCODE) {
+        return $.Deferred().resolve(false);
+      }else{ 
+        return resp;
+      }
+    });
+  }
 
-		createLead: function (details) {
-			var params = $.extend({
-				lead_source: 'Web',
-				building_name: this.constants.CUSTOM_BUILDING_NAME
-			}, details || {}, {
-				api_key: this.key
-			});
-			return this.exec('auth/lead', params).then(makeAccount);
-		},
+  checkInTimeSlotGroups(zip) {
+    return this.exec('scheduler/check-in', { zip: zip }, { method: 'GET' }).then(makeTimeSlotGroups);
+  }
+}
 
-		requestPickup: function (date) {
-			return this.exec('scheduler/pickup-date', {
-				scheduled_date: formatLocalDate(date)
-			});
-		},
-
-		updatePaymentCredentials: function(details){
-			return this.exec('payments/credentials', details).then(function(r){
-				return r.bodyContent();
-			});
-		},
-
-		salePointsByAddress: function (address, distance) {
-			return this.exec('salepoints/by-address', {
-				address: address,
-				distance: distance
-			}).then(makeModel(SalePoint));
-		},
-
-		checkZip: function (zip) {
-			return this.exec('region/check-zip', 
-				{ zip: zip, api_key: this.key }
-			).then(function(resp){
-				return resp.bodyContent();
-			}, function(resp) {
-				if (resp.statusCode() === ConsumerClient.statusCodes.UNSUPPORTED_ZIPCODE)
-					return $.Deferred().resolve(false);
-				else 
-					return resp;
-			});
-		},
-
-		checkInTimeSlotGroups: function (zip) {
-			return this.exec('scheduler/check-in', { zip: zip }, { method: 'GET' }).then(makeTimeSlotGroups);
-		}
-
-	};
-
-	omni.clients.ConsumerClient = ConsumerClient;
-	return ConsumerClient;
-
-});
+omni.clients.ConsumerClient = ConsumerClient;

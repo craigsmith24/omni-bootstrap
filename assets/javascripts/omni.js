@@ -1,4 +1,4 @@
-define('omni', {
-	clients: {},
-	models: {}
-});
+export default omni = {
+  clients: {},
+  models: {}
+}

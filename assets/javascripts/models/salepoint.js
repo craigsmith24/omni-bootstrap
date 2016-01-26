@@ -1,21 +1,20 @@
-define('omni-salepoint-model', [
-	'omni'
-], function(
-	omni
-) {
+"use strict";
 
-	"use strict";
+import omni from '../omni';
 
-	function SalePoint(data) {
-		this.data = data;
-	}
 
-	SalePoint.prototype = {
-		title: function(){ return this.data.title; },
-		street: function(){ return this.data.street; }
-	};
+export default class SalePoint {
+  constructor(data){
+    this.data = data;
+  }
 
-	omni.models.SalePoint = SalePoint;
-	return SalePoint;
+  title() {
+    return this.data.title;
+  }
 
-});
+  street() {
+    return this.data.street;
+  }
+}
+
+omni.models.SalePoint = SalePoint;

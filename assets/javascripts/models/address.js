@@ -1,32 +1,49 @@
-define('omni-address-model', [
-	'omni'
-], function(
-	omni
-) {
+"use strict";
 
-	"use strict";
 
-	var DEFAULT_STREET = /1150 illinois st/gi;
+import omni from '../omni';
 
-	function Address(data) {
-		this.data = data;
-	}
 
-	Address.prototype = {
-		title: function() { return this.data.title; },
-		apt: function() { return this.data.apt; },
-		street: function() { 
-			var street = this.data.street; 
-			if (DEFAULT_STREET.test(street)) return '';
-			else return street;
-		},
-		city: function() { return this.data.city; },
-		state: function() { return this.data.state; },
-		formatted: function() { return this.data.formated_address; },
-		zip: function() { return this.data.zip; }
-	};
+const DEFAULT_STREET = /1150 illinois st/gi;
 
-	omni.models.Address = Address;
-	return Address;
 
-});
+export default class Address {
+  constructor(data){
+    this.data = data;
+  }
+
+  title() {
+    return this.data.title;
+  }
+
+  apt() {
+    return this.data.apt;
+  }
+
+  street() {
+    const street = this.data.street;
+    if (DEFAULT_STREET.test(street)) {
+      return '';
+    }else{
+      return street;
+    }
+  }
+
+  city() {
+    return this.data.city;
+  }
+
+  state(){
+    return this.data.state;
+  }
+
+  formatted() {
+    return this.data.formated_address;
+  }
+
+  zip() {
+    return this.data.zip;
+  }
+}
+
+omni.models.Address = Address;
